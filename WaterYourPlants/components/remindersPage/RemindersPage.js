@@ -7,7 +7,9 @@ const RemindersPage = () => {
       <View style={styles.topBar}>
         <Text style={styles.topBarText}>All Reminders</Text>
       </View>
-      <View style={styles.reminderCards}></View>
+      <View style={styles.reminderCards}>
+        <Text>idk</Text>
+      </View>
       <View style={styles.reminderCards}></View>
       <View style={styles.reminderCards}></View>
     </View>

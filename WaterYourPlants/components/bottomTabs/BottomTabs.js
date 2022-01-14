@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 
-const BottomTabs = ({currentScreen, setCurrentScreen}) => {
+const BottomTabs = ({currentScreen, setCurrentScreen, setAddReminderPopup}) => {
   return (
     <View style={styles.container}>
       <TouchableWithoutFeedback
@@ -15,7 +15,10 @@ const BottomTabs = ({currentScreen, setCurrentScreen}) => {
           </Text>
         </View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          setAddReminderPopup(true);
+        }}>
         <View style={styles.addButton}>
           <Text style={styles.addButtonText}>+</Text>
         </View>
