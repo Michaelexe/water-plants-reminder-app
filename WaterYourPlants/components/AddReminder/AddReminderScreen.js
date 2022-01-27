@@ -8,11 +8,14 @@ import {
   ScrollView,
   TouchableHighlight,
   Button,
+  Pressable,
 } from 'react-native';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
+import LinearGradient from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import plants from '../../index.js';
+import plants from '../../assets/plants.js';
 
 const AddReminderScreen = ({setAddReminderPopup}) => {
   const [selectedPlant, setSelectedPlant] = useState();
@@ -29,6 +32,32 @@ const AddReminderScreen = ({setAddReminderPopup}) => {
     const currentDate = newDate || date;
     setDate(currentDate);
     setShow(false);
+  };
+
+  const submitHandler = async () => {
+    try {
+      const currentState = await AsyncStorage.getItem('reminders');
+      const currentStateParsed = JSON.parse(currentState);
+      const value = {
+        plantName: selectedPlant.name,
+        plantTime: selectedPlant.timing,
+        date: date,
+      };
+      if (currentState !== null) {
+        await AsyncStorage.setItem(
+          'reminders',
+          JSON.stringify({list: [...currentStateParsed.list, value]}),
+        );
+      } else {
+        await AsyncStorage.setItem(
+          'reminders',
+          JSON.stringify({list: [value]}),
+        );
+      }
+      await setAddReminderPopup(false);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -89,23 +118,52 @@ const AddReminderScreen = ({setAddReminderPopup}) => {
                 Select a date for when to start reminding:
               </Text>
               <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                <Button
-                  title="Choose Date"
+                <Pressable
                   onPress={() => {
                     showPopup('data');
                   }}
-                />
+                  style={{alignItems: 'center', justifyContent: 'center'}}>
+                  <LinearGradient
+                    colors={['#05668D', '#00A896']}
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}
+                    style={styles.normalButtons}>
+                    <Text style={styles.buttonText}>Choose Date</Text>
+                  </LinearGradient>
+                  <Text style={styles.currentlySetText}>
+                    Currently at {date.getDate()}/{date.getMonth() + 1}/
+                    {date.getFullYear()}
+                  </Text>
+                </Pressable>
               </View>
               <Text style={{...styles.headers, marginTop: 30}}>
                 Select a time for when to start reminding:
               </Text>
-              <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                <Button
-                  title="Choose Time"
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginBottom: 70,
+                }}>
+                <Pressable
                   onPress={() => {
                     showPopup('time');
                   }}
-                />
+                  style={{alignItems: 'center', justifyContent: 'center'}}>
+                  <LinearGradient
+                    colors={['#05668D', '#00A896']}
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}
+                    style={styles.normalButtons}>
+                    <Text style={styles.buttonText}>Choose Time</Text>
+                  </LinearGradient>
+                  <Text style={styles.currentlySetText}>
+                    Currently set as {date.getHours()}:
+                    {date.getMinutes() < 10
+                      ? '0' + date.getMinutes()
+                      : date.getMinutes()}
+                  </Text>
+                </Pressable>
               </View>
             </View>
           ) : null}
@@ -122,6 +180,19 @@ const AddReminderScreen = ({setAddReminderPopup}) => {
           />
         ) : null}
       </ScrollView>
+      {selectedPlant ? (
+        <View style={styles.submitButtonContainer}>
+          <Pressable onPress={submitHandler}>
+            <LinearGradient
+              colors={['#00A896', '#02C39A']}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
+              style={styles.submitButton}>
+              <Text style={styles.buttonText}>Add Reminder</Text>
+            </LinearGradient>
+          </Pressable>
+        </View>
+      ) : null}
     </View>
   );
 };
@@ -185,6 +256,44 @@ const styles = StyleSheet.create({
   plantTime: {
     color: 'white',
     fontWeight: '500',
+  },
+
+  normalButtons: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#028090',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 100,
+    marginTop: 10,
+  },
+
+  submitButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#02C39A',
+    borderRadius: 100,
+  },
+
+  submitButtonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 0,
+    backgroundColor: '#028090',
+    width: '100%',
+    height: 60,
+  },
+
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 17,
+  },
+
+  currentlySetText: {
+    fontSize: 20,
+    marginTop: 5,
   },
 });
 
